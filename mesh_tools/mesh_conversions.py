@@ -66,6 +66,30 @@ def exfile_to_morphic(nodeFilename, elementFilename, coordinateField,
 
     return mesh
 
+def json_to_morphic(json):
+    """Convert an exnode and exelem files to a morphic mesh.
+
+    Keyword arguments:
+    nodeFilename -- mesh data in json format (see morphic.export() for more
+        info).
+    """
+
+    # Create morphic mesh.
+    mesh = morphic.Mesh()
+
+    # Add nodes.
+    for node_id, value in json['nodes'].items():
+        mesh.add_stdnode(node_id, value, group='_default')
+
+    # Add elements.
+    for element_id, element in json['elements'].items():
+        mesh.add_element(element_id, element['basis'], element['nodes'])
+
+    # Generate the mesh.
+    mesh.generate(True)
+
+    return mesh
+
 def exfile_to_OpenCMISS(nodeFilename, elementFilename, coordinateField, basis,
                         region, meshUserNumber, dimension=2,
                         interpolation='linear', pressure_basis=None,
