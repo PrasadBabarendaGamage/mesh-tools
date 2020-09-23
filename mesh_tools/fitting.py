@@ -64,6 +64,14 @@ class Fitting:
                  iron.EquationsSetFittingSmoothingTypes.SOBOLEV_VALUE])
             self.data_interpolation_type = \
                 iron.FieldInterpolationTypes.DATA_POINT_BASED
+        elif fitting_type == 'geometric':
+            self.specification = (
+                [iron.EquationsSetClasses.FITTING,
+                 iron.EquationsSetTypes.DATA_FITTING_EQUATION,
+                 iron.EquationsSetSubtypes.DATA_POINT_FITTING,
+                 iron.EquationsSetFittingSmoothingTypes.SOBOLEV_DIFFERENCE])
+            self.data_interpolation_type = \
+                iron.FieldInterpolationTypes.DATA_POINT_BASED
         else:
             raise ValueError('Specified fitting type not supported')
         self.problem_specification = ([iron.ProblemClasses.FITTING,
@@ -115,9 +123,9 @@ class Fitting:
             self.data_projection.ProjectionTypeSet(
             iron.DataProjectionProjectionTypes.BOUNDARY_FACES)
         self.data_projection.NumberOfClosestElementsSet(1)
-        self.data_projection.AbsoluteToleranceSet(1.0e-14)
-        self.data_projection.RelativeToleranceSet(1.0e-14)
-        self.data_projection.MaximumNumberOfIterationsSet(int(1e6))
+        self.data_projection.AbsoluteToleranceSet(1.0e-3)
+        self.data_projection.RelativeToleranceSet(1.0e-3)
+        self.data_projection.MaximumNumberOfIterationsSet(int(200))
         if projection_type == 'all_elements':
             self.data_projection.StartingXiSet(np.array(self.data_element_xi))
             for idx, point_id in enumerate(self.data_point_ids):
@@ -165,16 +173,17 @@ class Fitting:
             # Create decomposition data projection
             self.decomposition.TopologyDataProjectionCalculate()
 
-        # Save projection results
-        self.projection_vector = np.zeros((self.num_data_points, 3))
-        self.projection_distance = np.zeros(self.num_data_points)
-        if not skip_projection:
-            for dataPointIdx, dataPoint in enumerate(self.data_point_ids):
-                self.projection_vector[dataPointIdx, :] = \
-                    -self.data_projection.ResultProjectionVectorGet(
-                        int(dataPoint), 3)
-                self.projection_distance[dataPointIdx] = \
-                    self.data_projection.ResultDistanceGet(int(dataPoint))
+        if element_xi is None:
+            # Save projection results
+            self.projection_vector = np.zeros((self.num_data_points, 3))
+            self.projection_distance = np.zeros(self.num_data_points)
+            if not skip_projection:
+                for dataPointIdx, dataPoint in enumerate(self.data_point_ids):
+                    self.projection_vector[dataPointIdx, :] = \
+                        -self.data_projection.ResultProjectionVectorGet(
+                            int(dataPoint), 3)
+                    self.projection_distance[dataPointIdx] = \
+                        self.data_projection.ResultDistanceGet(int(dataPoint))
 
     def get_projection_vectors(self,):
         return self.projection_vector
@@ -468,12 +477,12 @@ class Fitting:
             [iron.ControlLoopIdentifiers.NODE], 1, self.solver)
         # self.solver.OutputTypeSet(iron.SolverOutputTypes.NONE)
         self.solver.OutputTypeSet(iron.SolverOutputTypes.PROGRESS)
-        # self.solver.LinearTypeSet(iron.LinearSolverTypes.DIRECT)
-        # self.solver.LibraryTypeSet(iron.SolverLibraries.UMFPACK) # UMFPACK/SUPERLU
-        self.solver.LinearTypeSet(iron.LinearSolverTypes.ITERATIVE)
-        self.solver.LinearIterativeMaximumIterationsSet(5000)
-        self.solver.LinearIterativeAbsoluteToleranceSet(1.0E-10)
-        self.solver.LinearIterativeRelativeToleranceSet(1.0E-05)
+        self.solver.LinearTypeSet(iron.LinearSolverTypes.DIRECT)
+        # # self.solver.LibraryTypeSet(iron.SolverLibraries.UMFPACK) # UMFPACK/SUPERLU
+        # self.solver.LinearTypeSet(iron.LinearSolverTypes.ITERATIVE)
+        # self.solver.LinearIterativeMaximumIterationsSet(5000)
+        # self.solver.LinearIterativeAbsoluteToleranceSet(1.0E-10)
+        # self.solver.LinearIterativeRelativeToleranceSet(1.0E-05)
         self.problem.SolversCreateFinish()
 
         self.solver = iron.Solver()
@@ -508,7 +517,7 @@ class Fitting:
 
     def solve(self):
         """
-        Peform fitting.
+        Perform fitting.
         """
         # Solve the problem
         for iteration_num in range(1, self.num_iterations + 1):
