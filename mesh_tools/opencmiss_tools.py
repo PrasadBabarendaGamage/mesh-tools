@@ -3,7 +3,9 @@ import utilities
 import numpy as np
 from opencmiss.iron import iron
 
-def interpolate_opencmiss_field(field, element_ids=[], xi=None, num_values=4,dimension=3, derivative_number=1, elems=None, face=None, value=0.):
+def interpolate_opencmiss_field(
+        field, element_ids=[], xi=None, num_values=4, dimension=3,
+        derivative_number=1, elems=None, face=None, value=0.):
     import mesh_tools.fields as fields
 
     if xi is None:
@@ -11,7 +13,8 @@ def interpolate_opencmiss_field(field, element_ids=[], xi=None, num_values=4,dim
             XiNd = fields.generate_xi_grid_fem(
                 num_points=[num_values, num_values, num_values])
         else:
-            XiNd = fields.generate_xi_on_face(face, value, num_points=num_values, dim=dimension)
+            XiNd = fields.generate_xi_on_face(
+                face, value, num_points=num_values, dim=dimension)
 
         num_elem_values = XiNd.shape[0]
         num_Xe = len(element_ids)
@@ -23,8 +26,10 @@ def interpolate_opencmiss_field(field, element_ids=[], xi=None, num_values=4,dim
         for elem_idx, element_id in enumerate(element_ids):
             for point_idx in range(num_elem_values):
                 single_xi = XiNd[point_idx,:]
-                values[elem_idx, point_idx, :] = field.ParameterSetInterpolateSingleXiDP(iron.FieldVariableTypes.U,
-                                                             iron.FieldParameterSetTypes.VALUES, derivative_number, int(element_id), single_xi, dimension)
+                values[elem_idx, point_idx, :] = field.ParameterSetInterpolateSingleXiDP(
+                    iron.FieldVariableTypes.U,
+                    iron.FieldParameterSetTypes.VALUES, derivative_number,
+                    int(element_id), single_xi, dimension)
             xi[elem_idx, :, :] = XiNd
             elements[elem_idx, :] = element_id
 
@@ -38,8 +43,9 @@ def interpolate_opencmiss_field(field, element_ids=[], xi=None, num_values=4,dim
         for point_idx in range(xi.shape[0]):
             element_id = elems[point_idx]
             single_xi = xi[point_idx,:]
-            values[point_idx, :] = field.ParameterSetInterpolateSingleXiDP(iron.FieldVariableTypes.U,
-                                                         iron.FieldParameterSetTypes.VALUES, derivative_number, int(element_id), single_xi, dimension)
+            values[point_idx, :] = field.ParameterSetInterpolateSingleXiDP(
+                iron.FieldVariableTypes.U, iron.FieldParameterSetTypes.VALUES,
+                derivative_number, int(element_id), single_xi, dimension)
         return values
 
 
@@ -153,15 +159,18 @@ def interpolate_opencmiss_field_sample(
     return values, xi, elements
 
 def interpolate_opencmiss_field_xi(
-        field, xi, element_ids=[], dimension=3, deriv=1):
+        field, xi, element_ids=[], dimension=3, deriv=1,
+        variable=iron.FieldVariableTypes.U):
+    num_field_components = field.NumberOfComponentsGet(iron.FieldVariableTypes.U)
+    xi = np.atleast_2d(xi)
     num_values = xi.shape[0]
-    values = np.zeros((num_values, dimension))
+    values = np.zeros((num_values, num_field_components))
     for point_idx in range(xi.shape[0]):
         element_id = element_ids[point_idx]
         values[point_idx, :] = field.ParameterSetInterpolateSingleXiDP(
-            iron.FieldVariableTypes.U,
+            variable,
             iron.FieldParameterSetTypes.VALUES, deriv,
-            int(element_id), xi[point_idx, :], dimension)
+            int(element_id), xi[point_idx, :], num_field_components)
     return values
 
 
