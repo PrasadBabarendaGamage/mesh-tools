@@ -14,7 +14,7 @@ def export_h5_dataset(export_fname, label, data):
 def import_h5_dataset(import_fname, label):
     data_file = h5py.File(import_fname, 'r')
     data = data_file[label][...]
-    if data.dtype.char is 'S':
+    if data.dtype.char == 'S':
         data = str(np.char.decode(data))
     data_file.close()
 
