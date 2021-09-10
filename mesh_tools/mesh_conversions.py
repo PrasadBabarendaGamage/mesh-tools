@@ -228,7 +228,9 @@ def morphic_to_OpenCMISS(morphicMesh, region, basis, meshUserNumber,
     mesh.CreateFinish()
 
     # Add nodes
-    if interpolation == 'linear' or interpolation == 'cubicLagrange':
+    if interpolation == 'linear' or \
+            interpolation == 'quadraticLagrange' or \
+            interpolation == 'cubicLagrange':
         derivatives = [1]
     elif interpolation == 'hermite':
         derivatives = range(1,9)

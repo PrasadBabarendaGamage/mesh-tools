@@ -1,16 +1,16 @@
 
-# Load cubic_lagrange_mesh
-gfx read node results/cubic_lagrange_mesh.part0.exnode region cubic_lagrange_mesh
-gfx read elem results/cubic_lagrange_mesh.part0.exelem region cubic_lagrange_mesh
-gfx define faces egroup "cubic_lagrange_mesh"
+# Load converted_lagrange_mesh
+gfx read node results/converted_mesh.part0.exnode region converted_lagrange_mesh
+gfx read elem results/converted_mesh.part0.exelem region converted_lagrange_mesh
+gfx define faces egroup "converted_lagrange_mesh"
 
-gfx modify g_element /cubic_lagrange_mesh/ surfaces domain_mesh2d coordinate Geometry face all tessellation default LOCAL select_on material default selected_material default_selected render_shaded;
-gfx modify g_element /cubic_lagrange_mesh/ lines domain_mesh1d coordinate Geometry face all tessellation default LOCAL line line_base_size 0 select_on material default selected_material default_selected render_shaded;
-gfx modify g_element /cubic_lagrange_mesh/ points domain_nodes coordinate Geometry tessellation default_points LOCAL glyph sphere size "1*1*1" offset 0,0,0 font default select_on material default selected_material default_selected render_shaded;
+gfx modify g_element /converted_lagrange_mesh/ surfaces domain_mesh2d coordinate Geometry face all tessellation default LOCAL select_on material default selected_material default_selected render_shaded;
+gfx modify g_element /converted_lagrange_mesh/ lines domain_mesh1d coordinate Geometry face all tessellation default LOCAL line line_base_size 0 select_on material default selected_material default_selected render_shaded;
+gfx modify g_element /converted_lagrange_mesh/ points domain_nodes coordinate Geometry tessellation default_points LOCAL glyph sphere size "1*1*1" offset 0,0,0 font default select_on material default selected_material default_selected render_shaded;
 
 # Load cubic Hermite mesh
-gfx read node Left_RefittedNoVersion.exnode region cubic_hermite_mesh
-gfx read elem Left_RefittedNoVersion.exelem region cubic_hermite_mesh
+gfx read node test_mesh/lung_mesh.exnode region cubic_hermite_mesh
+gfx read elem test_mesh/lung_mesh.exelem region cubic_hermite_mesh
 
 gfx modify g_element /cubic_hermite_mesh/ surfaces domain_mesh2d coordinate coordinates face all tessellation default LOCAL select_on material default selected_material default_selected render_shaded;
 gfx modify g_element /cubic_hermite_mesh/ lines domain_mesh1d coordinate coordinates face all tessellation default LOCAL line line_base_size 0 select_on material default selected_material default_selected render_shaded;
