@@ -10,7 +10,7 @@ is available and if so, export the mesh in exnode/exelem format.
 import os
 import mesh_tools
 from morphic.utils import convert_hermite_lagrange
-import importlib
+from importlib import util
 
 def mesh_conversion(
         dimension, interpolation, exfile_coordinate_field, exnode_filename,
@@ -39,7 +39,7 @@ def mesh_conversion(
         print(element.node_ids)
 
     # Export mesh in ex format using OpenCMISS
-    module_spec = importlib.util.find_spec("opencmiss.iron")
+    module_spec = util.find_spec("opencmiss")
     opencmiss_found = module_spec is not None
     if opencmiss_found:
         from opencmiss.iron import iron
@@ -126,7 +126,7 @@ def mesh_conversion(
 if __name__ == '__main__':
     
     dimension = 3  # Dimension of the coordinate system.
-    interpolation = "cubicLagrange"  # Interpolation of the converted mesh.
+    interpolation = "quadraticLagrange"  # Interpolation of the converted mesh.
 
     # Input mesh information
     exfile_coordinate_field = 'coordinates'
