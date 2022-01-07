@@ -368,10 +368,99 @@ def txt_to_morphic(mesh_dir, node_file, element_file, nodes_subset=[],
 
     return mesh
 
+
+def morphic_to_meshio(morphic_mesh):
+    """Convert an morphic mesh to meshio format.
+
+    Only Linear lagrange elements supported.
+
+    Quad elements implemented, hex elements are a work in progress.
+    """
+
+    import meshio
+
+    points = morphic_mesh.get_nodes()
+
+    quad_element_nodes = []
+    hex_element_nodes = []
+    quad_element_numbers = []
+    hex_element_numbers = []
+    for element_idx, element in enumerate(morphic_mesh.elements):
+        if element.basis == ['L1', 'L1']:
+            reordering_idxs = scipy.array(
+                [1, 3, 2, 0])
+            reordered_element_nodes = np.array(element.node_ids)[reordering_idxs]
+            quad_element_nodes.append(reordered_element_nodes)
+            quad_element_numbers.append(element.id)
+        elif element.basis == ['L1', 'L1', 'L1']:
+            hex_element_nodes.append(element.node_ids)
+            hex_element_numbers.append(element.id)
+
+    cells = [
+        ("quad", np.array(quad_element_nodes)-1),
+        #("hex", hex_element_nodes),
+    ]
+
+    meshio_mesh = meshio.Mesh(
+        points,
+        cells,
+        cell_data={"element_numbers": [np.array(quad_element_numbers)]},
+    )
+
+    return meshio_mesh
+
 def abaqus_to_morphic(mesh_dir, filename, nodes_subset=[], elem_subset=[],
                       debug=False):
     """Convert an abaqus .inp file to a morphic mesh.
 
+    Only Linear lagrange elements supported.
+
+    Keyword arguments:
+    nodes_subset -- nodes to load (all if empty)
+    elem_subset -- elements to load (all if empty)
+    """
+    import meshio
+
+    # Create morphic mesh
+    mesh = morphic.Mesh()
+
+    abaqus_mesh = meshio.read(os.path.join(mesh_dir, filename))
+
+    for node_num, coordinates in enumerate(abaqus_mesh.points):
+        if node_num in nodes_subset or nodes_subset == []:
+            print('Morhpic node added', node_num)
+            mesh.add_stdnode(
+                node_num, coordinates, group='_default')
+
+    for abaqus_mesh_cell in abaqus_mesh.cells:
+        for element_num, element_nodes in enumerate(abaqus_mesh_cell.data):
+            if element_num in elem_subset or elem_subset == []:
+                print('Morphic element added', element_num)
+                if abaqus_mesh_cell.type == 'hex':
+                    reordering_idxs = scipy.array(
+                        [0, 1, 2, 3, 4, 5, 6, 7])
+                    reordered_element_nodes = element_nodes[reordering_idxs]
+                    mesh.add_element(
+                        element_num, ['L1', 'L1', 'L1'],
+                        reordered_element_nodes)
+                elif abaqus_mesh_cell.type == 'quad':
+                    reordering_idxs = scipy.array(
+                        [3, 0, 2, 1])
+                    reordered_element_nodes = element_nodes[reordering_idxs]
+                    mesh.add_element(
+                        element_num, ['L1', 'L1'],
+                        reordered_element_nodes)
+
+    # Generate the mesh
+    mesh.generate(True)
+
+    return mesh
+
+def abaqus_to_morphic_legacy(
+        mesh_dir, filename, nodes_subset=[], elem_subset=[], debug=False):
+    """Convert an abaqus .inp file to a morphic mesh.
+
+    Only CAX4P surface meshes and SC8R volume meshes supported.
     Only Linear lagrange elements supported.
 
     Keyword arguments:
@@ -412,8 +501,12 @@ def abaqus_to_morphic(mesh_dir, filename, nodes_subset=[], elem_subset=[],
 
     # Add elements
     for line_idx, line in enumerate(lines):
-        if line.strip() == '*Element, type=SC8R':
+        if line.strip() in ['*Element, type=SC8R', '*ELEMENT, TYPE=CAX4P']:
+            elem_type = line.strip().split('=')[1]
             for node_line_idx in range(line_idx + 1, num_lines + 1):
+                print(node_line_idx)
+                if node_line_idx == 1136:
+                    a=1
                 node_line = lines[node_line_idx]
                 if node_line.strip() == '*System':
                     break
@@ -421,16 +514,23 @@ def abaqus_to_morphic(mesh_dir, filename, nodes_subset=[], elem_subset=[],
                     element_nodes = node_line.strip().split(',')[1:]  # [-1]
                     element_nodes = scipy.array(
                         [int(node) for node in element_nodes])
-                    renumbering_idx = scipy.array([0, 2, 1, 3, 4, 6, 5, 7])
-                    renumbering_idx = scipy.array([0, 1, 3, 2, 4, 5, 7, 6])
-                    renumbering_idx = scipy.array([0, 1, 2, 3, 4, 5, 6, 7])
-                    element_nodes = element_nodes[renumbering_idx]
                     element_num = int(node_line.strip().split(',')[0])
                     # print 'Elem: ', element_num, 'Elem nodes: ', element_nodes
                     if element_num in elem_subset or elem_subset == []:
                         print('Morphic element added', element_num)
-                        mesh.add_element(element_num, ['L1', 'L1', 'L1'],
-                                         element_nodes)
+                        if elem_type == 'SC8R':
+                            renumbering_idx = scipy.array(
+                                [0, 1, 2, 3, 4, 5, 6, 7])
+                            element_nodes = element_nodes[renumbering_idx]
+                            mesh.add_element(
+                                element_num, ['L1', 'L1', 'L1'], element_nodes)
+                        elif elem_type == 'CAX4P':
+                            renumbering_idx = scipy.array(
+                                [0, 1, 2, 3])
+                            element_nodes = element_nodes[renumbering_idx]
+                            mesh.add_element(
+                                element_num, ['L1', 'L1'], element_nodes)
+            elem_type = ''
             break
 
     # Generate the mesh
