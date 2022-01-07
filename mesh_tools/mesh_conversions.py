@@ -1,4 +1,6 @@
+import os
 import numpy as np
+import scipy
 import mesh_tools
 import morphic
 
@@ -324,3 +326,319 @@ def OpenCMISS_to_morphic(
     mesh.generate(True)
 
     return mesh
+
+def txt_to_morphic(mesh_dir, node_file, element_file, nodes_subset=[],
+                   nodes_to_exclude=[], elem_subset=[]):
+    """Convert text files containing vertices (nodes) and faces (elements) to a
+     morphic mesh.
+
+    Only Linear lagrange elements supported.
+
+    Keyword arguments:
+    nodes_subset -- nodes to load (all if empty)
+    elem_subset -- elements to load (all if empty)
+    """
+
+    # Create mesh
+    mesh = morphic.Mesh()
+
+    # Load node .txt file
+    nodes = scipy.loadtxt(
+        os.path.join(mesh_dir, node_file), dtype='float', delimiter=',')
+    for node_idx, coordinates, in enumerate(nodes):
+        node_num = node_idx + 1
+        if node_num in nodes_subset or nodes_subset == []:
+            if node_num not in nodes_to_exclude:
+                mesh.add_stdnode(node_num, coordinates, group='_default')
+                print('Morhpic node added', node_num, coordinates)
+
+    # Add elements
+    elements = scipy.loadtxt(
+        os.path.join(mesh_dir, element_file), dtype='int', delimiter=',')
+    for element_idx, element_nodes in enumerate(elements):
+        element_num = element_idx + 1
+        renumbering_idx = scipy.array([0, 1, 3, 2])
+        element_nodes = element_nodes[renumbering_idx]
+        if element_num in elem_subset or elem_subset == []:
+            mesh.add_element(element_num, ['L1', 'L1'], element_nodes)
+            print('Morphic element added', element_num)
+
+    # Generate the mesh
+    mesh.generate(True)
+
+    return mesh
+
+def abaqus_to_morphic(mesh_dir, filename, nodes_subset=[], elem_subset=[],
+                      debug=False):
+    """Convert an abaqus .inp file to a morphic mesh.
+
+    Only Linear lagrange elements supported.
+
+    Keyword arguments:
+    nodes_subset -- nodes to load (all if empty)
+    elem_subset -- elements to load (all if empty)
+    """
+
+    # Create mesh
+    mesh = morphic.Mesh()
+
+    # Load abaqus .inp file
+    f = open(os.path.join(mesh_dir, filename), 'r')
+    lines = f.readlines()
+    num_lines = len(lines)
+
+    # Add nodes
+    for line_idx, line in enumerate(lines):
+        if debug:
+            print(line)
+        if line.strip() == '*Node':
+            for node_line_idx in range(line_idx + 1, num_lines + 1):
+                node_line = lines[node_line_idx]
+                if node_line.strip() == '*Element, type=SC8R':
+                    break
+                else:
+                    coordinates = node_line.strip().split(',')
+
+                    x = float(coordinates[1])
+                    y = float(coordinates[2])
+                    z = float(coordinates[3])
+
+                    node_num = int(coordinates[0])
+                    if node_num in nodes_subset or nodes_subset == []:
+                        print('Morhpic node added', node_num)
+                        mesh.add_stdnode(
+                            node_num, scipy.array([x, y, z]), group='_default')
+            break
+
+    # Add elements
+    for line_idx, line in enumerate(lines):
+        if line.strip() == '*Element, type=SC8R':
+            for node_line_idx in range(line_idx + 1, num_lines + 1):
+                node_line = lines[node_line_idx]
+                if node_line.strip() == '*System':
+                    break
+                else:
+                    element_nodes = node_line.strip().split(',')[1:]  # [-1]
+                    element_nodes = scipy.array(
+                        [int(node) for node in element_nodes])
+                    renumbering_idx = scipy.array([0, 2, 1, 3, 4, 6, 5, 7])
+                    renumbering_idx = scipy.array([0, 1, 3, 2, 4, 5, 7, 6])
+                    renumbering_idx = scipy.array([0, 1, 2, 3, 4, 5, 6, 7])
+                    element_nodes = element_nodes[renumbering_idx]
+                    element_num = int(node_line.strip().split(',')[0])
+                    # print 'Elem: ', element_num, 'Elem nodes: ', element_nodes
+                    if element_num in elem_subset or elem_subset == []:
+                        print('Morphic element added', element_num)
+                        mesh.add_element(element_num, ['L1', 'L1', 'L1'],
+                                         element_nodes)
+            break
+
+    # Generate the mesh
+    mesh.generate(True)
+
+    return mesh
+
+
+def ansys_to_morphic(mesh_dir, filename, nodes_subset=[], elem_subset=[],
+                     debug=False):
+    """Convert an ansys .in file to a morphic mesh.
+
+    Only Linear lagrange elements supported.
+
+    Keyword arguments:
+    nodes_subset -- nodes to load (all if empty)
+    elem_subset -- elements to load (all if empty)
+    """
+
+    # Create mesh
+    mesh = morphic.Mesh()
+
+    # Load ansys .in file
+    f = open(os.path.join(mesh_dir, filename), 'r')
+    lines = f.readlines()
+    num_lines = len(lines)
+
+    # Add nodes
+    for line_idx, line in enumerate(lines):
+        if line.split(' ,')[0] == 'NBLOCK':
+            for node_line_idx in range(line_idx + 2, num_lines + 1):
+                node_line = lines[node_line_idx]
+                if node_line.split()[0] == 'N':
+                    break
+                else:
+                    coordinates = node_line.split('       ')[-1]
+                    # import ipdb; ipdb.set_trace()
+                    x = float(coordinates[1:17])
+                    y = float(coordinates[17:33])
+                    z = float(coordinates[33:-1])
+
+                    node_num = int(node_line.split()[0])
+                    if node_num in nodes_subset or nodes_subset == []:
+                        print('Morhpic node added', node_num)
+                        mesh.add_stdnode(
+                            node_num, scipy.array([x, y, z]), group='_default')
+            break
+
+    # Add elements
+    for line_idx, line in enumerate(lines):
+        if line.split(' ,')[0] == 'EBLOCK':
+            for node_line_idx in range(line_idx + 2, num_lines + 1):
+                node_line = lines[node_line_idx]
+                # print node_line.split()
+                if node_line.split() == []:
+                    break
+                else:
+                    element_nodes = node_line.split()[11:15]  # [-1]
+                    element_nodes = scipy.array(
+                        [int(node) for node in element_nodes])
+                    renumbering_idx = scipy.array([0, 1, 3, 2])
+                    element_nodes = element_nodes[renumbering_idx]
+                    element_num = int(node_line.split()[10])
+                    # print 'Elem: ', element_num, 'Elem nodes: ', element_nodes
+                    # import ipdb; ipdb.set_trace()
+                    if element_num in elem_subset or elem_subset == []:
+                        print('Morphic element added', element_num)
+                        mesh.add_element(element_num, ['L1', 'L1'],
+                                         element_nodes)
+            break
+
+    # Generate the mesh
+    mesh.generate(True)
+
+    return mesh
+
+def morphic_to_openfemlite(
+        mesh, export_dir=[], export_name='3DMeshIn3DSpace',
+        node_offset=0, element_offset=0, mesh_type='volume',
+        visualisation_scripts_only=False, debug=False):
+    """Convert a morphic mesh to a an openfemlite mesh and export ip files.
+
+    Cm and cmgui .com files will only be generated if they do not already
+    exist in the export dir.
+
+    Keyword arguments:
+    mesh -- morphic mesh
+    export_dir -- directory to export ip files (not exported if [])
+    export_name -- name to export ip files (default '3DMeshIn3DSpace')
+    visualisation_scripts_only -- only export CMGUI.com visualisation script
+    """
+
+    try:
+        import fem_topology
+    except:
+        raise ValueError(
+            'Openfemlite is required. This repo needs to be cloned from \
+            https://github.com/PrasadBabarendaGamage/open-fem-lite an the \
+            open-fem-lite/src/ folder added to the python path \
+            (it is not a python module)')
+
+    # User Numbers
+    RegionUserNumber = 1
+    BasisUserNumber = 1
+    GeneratedMeshUserNumber = 1
+    MeshUserNumber = 1
+    MeshNumberOfComponents = 1
+    MeshTotalNumberOfElements = 1
+    GeometricFieldUserNumber = 1
+    GeometricFieldNumberOfVariables = 1
+    GeometricFieldNumberOfComponents = 3
+
+    # Initialize and Create Regions
+    WORLD_REGION = fem_topology.femInitialize()
+    WORLD_REGION.RegionsCreateStart(RegionUserNumber)
+    WORLD_REGION.RegionsCreateFinish(RegionUserNumber)
+    REGION = WORLD_REGION.RegionsRegionGet(RegionUserNumber)
+
+    # Create Basis
+    REGION.BASES.BasesCreateStart(BasisUserNumber)
+    if mesh_type == 'volume':
+        REGION.BASES.BasisTypeSet(BasisUserNumber, "3DLinearLagrange")
+        NumberOfXi = 3
+    elif mesh_type == 'surface':
+        REGION.BASES.BasisTypeSet(BasisUserNumber, "2DLinearLagrange")
+        NumberOfXi = 2
+    REGION.BASES.BasisNumberOfXiCoordinatesSet(BasisUserNumber, NumberOfXi)
+    REGION.BASES.BasesCreateFinish(BasisUserNumber)
+
+    TotalNumberOfNodes = len(mesh.get_node_ids()[1])
+    REGION.NODES.NodesCreateStart(TotalNumberOfNodes)
+
+    MeshNumberOfComponents = 1
+
+    MeshTotalNumberOfElements = len(mesh.get_element_cids())
+    MeshUserNumber = 1
+    REGION.MESHES.MeshesCreateStart(MeshUserNumber)
+    REGION.MESHES.MeshNumberOfDimensionsSet(MeshUserNumber, NumberOfXi)
+    REGION.MESHES.MeshNumberOfComponentsSet(MeshUserNumber,
+                                            MeshNumberOfComponents)
+    MeshComponent = 1
+    REGION.MESHES.MeshElementsCreateStart(MeshUserNumber, MeshComponent,
+                                          BasisUserNumber)
+
+    for element_idx, element in enumerate(mesh.elements):
+        if debug:
+            print('OpenfemLite element added', element.id)
+        # elements.NodesSet(element_idx+offset, scipy.array(element.node_ids, dtype='int32'))
+        REGION.MESHES.MeshElementsNodesSet(MeshUserNumber, MeshComponent,
+                                           element.id + element_offset,
+                                           element.node_ids)
+
+    REGION.MESHES.MeshElementsCreateFinish(MeshUserNumber, MeshComponent)
+    REGION.MESHES.MeshesCreateFinish(MeshUserNumber)
+
+    # Define Geometric Fields
+    REGION.FIELDS.FieldCreateStart(GeometricFieldUserNumber)
+    REGION.FIELDS.FieldTypeSet(GeometricFieldUserNumber, "FieldGeometricType")
+    REGION.FIELDS.FieldMeshSet(GeometricFieldUserNumber, MeshUserNumber)
+    REGION.FIELDS.FieldNumberOfFieldVariablesSet(GeometricFieldUserNumber,
+                                                 GeometricFieldNumberOfVariables)
+    REGION.FIELDS.FieldNumberOfFieldComponentsSet(GeometricFieldUserNumber, 1,
+                                                  GeometricFieldNumberOfComponents)
+    REGION.FIELDS.FieldComponentLabelSet(GeometricFieldUserNumber, 1, 1, "x")
+    REGION.FIELDS.FieldComponentLabelSet(GeometricFieldUserNumber, 1, 2, "y")
+    REGION.FIELDS.FieldComponentLabelSet(GeometricFieldUserNumber, 1, 2, "z")
+    REGION.FIELDS.FieldComponentMeshComponentSet(GeometricFieldUserNumber, 1,
+                                                 1,
+                                                 1)  # FieldUserNumber,FieldVariableUserNumber,FieldComponentUserNumber,MeshComponentUserNumber
+    REGION.FIELDS.FieldComponentMeshComponentSet(GeometricFieldUserNumber, 1,
+                                                 2, 1)
+    REGION.FIELDS.FieldComponentMeshComponentSet(GeometricFieldUserNumber, 1,
+                                                 3, 1)
+    REGION.FIELDS.FieldCreateFinish(GeometricFieldUserNumber)
+
+    FieldVariable = 1
+    for morphic_node in mesh.nodes:
+        # if morphic_node.id in nodes_subset or nodes_subset == []:
+        for comp_idx in range(3):
+            try:
+                REGION.FIELDS.FieldParameterSetUpdateNode(
+                    GeometricFieldUserNumber, FieldVariable, 1, 1,
+                    morphic_node.id, comp_idx + 1,
+                    morphic_node.values[comp_idx])  # version_idx,deri
+            except:
+                pass
+
+    if export_dir:
+        path = os.path.join(export_dir, export_name + 'CMGUI.com')
+        if os.path.exists(path):
+            print('WARNING: ' + path + ' already exists')
+        else:
+            REGION.WriteCmguiCom(GeometricFieldUserNumber, 1,
+                                 os.path.join(export_dir, export_name))
+        if not visualisation_scripts_only:
+            REGION.WriteIpCoor(GeometricFieldUserNumber, 1,
+                               os.path.join(export_dir, export_name))
+            REGION.WriteIpNode(GeometricFieldUserNumber, 1,
+                               os.path.join(export_dir, export_name))
+            REGION.WriteIpElem(GeometricFieldUserNumber, 1,
+                               os.path.join(export_dir, export_name))
+            if not os.path.exists(
+                    os.path.join(export_dir, export_name + '.ipbase')):
+                REGION.WriteIpBase(GeometricFieldUserNumber, 1,
+                                   os.path.join(export_dir, export_name))
+            if not os.path.exists(
+                    os.path.join(export_dir, export_name + 'CMISS.com')):
+                REGION.WriteCmCom(GeometricFieldUserNumber, 1,
+                                  os.path.join(export_dir, export_name))
+
+    return REGION
