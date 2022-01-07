@@ -1,0 +1,381 @@
+ CMISS Version 1.21 ipnode File Version 2
+ Heading: 
+ 
+ The number of nodes is [   74]:    74
+ Number of coordinates [3]: 3
+ Do you want prompting for different versions of nj=1 [N]? N 
+ Do you want prompting for different versions of nj=2 [N]? N 
+ Do you want prompting for different versions of nj=3 [N]? N 
+ The number of derivatives for coordinate 1 is [0]: 0
+ The number of derivatives for coordinate 2 is [0]: 0
+ The number of derivatives for coordinate 3 is [0]: 0
+ 
+ Node number [    1]:     1 
+ The Xj(1) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -1.0416666400000000e+02 
+ 
+ Node number [    2]:     2 
+ The Xj(1) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: -1.2500000000000000e+02 
+ 
+ Node number [    4]:     4 
+ The Xj(1) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ 
+ Node number [    3]:     3 
+ The Xj(1) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -1.0416666400000000e+02 
+ 
+ Node number [    8]:     8 
+ The Xj(1) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ 
+ Node number [    9]:     9 
+ The Xj(1) coordinate is [ 0.00000E+00]: 1.0416666400000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: 2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ 
+ Node number [   12]:    12 
+ The Xj(1) coordinate is [ 0.00000E+00]: 1.2500000000000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ 
+ Node number [   13]:    13 
+ The Xj(1) coordinate is [ 0.00000E+00]: 1.0416666400000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: -2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ 
+ Node number [   16]:    16 
+ The Xj(1) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ 
+ Node number [    6]:     6 
+ The Xj(1) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: -1.2500000000000000e+02 
+ 
+ Node number [   18]:    18 
+ The Xj(1) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: -1.2500000000000000e+02 
+ 
+ Node number [    7]:     7 
+ The Xj(1) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(2) coordinate is [ 0.00000E+00]: 5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ 
+ Node number [   19]:    19 
+ The Xj(1) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -1.0416666400000000e+02 
+ 
+ Node number [   22]:    22 
+ The Xj(1) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ 
+ Node number [   23]:    23 
+ The Xj(1) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 8.8388351400000005e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ 
+ Node number [   26]:    26 
+ The Xj(1) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ 
+ Node number [   27]:    27 
+ The Xj(1) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(2) coordinate is [ 0.00000E+00]: 1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ 
+ Node number [   30]:    30 
+ The Xj(1) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ 
+ Node number [   10]:    10 
+ The Xj(1) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 8.8388351400000005e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ 
+ Node number [   20]:    20 
+ The Xj(1) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -1.0416666400000000e+02 
+ 
+ Node number [   32]:    32 
+ The Xj(1) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ 
+ Node number [   21]:    21 
+ The Xj(1) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ 
+ Node number [   33]:    33 
+ The Xj(1) coordinate is [ 0.00000E+00]: -1.0416666400000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: -2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ 
+ Node number [   36]:    36 
+ The Xj(1) coordinate is [ 0.00000E+00]: -1.2500000000000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: 1.4612139900000000e-08 
+ The Xj(3) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ 
+ Node number [   24]:    24 
+ The Xj(1) coordinate is [ 0.00000E+00]: -1.0416666400000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: 2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ 
+ Node number [   17]:    17 
+ The Xj(1) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -8.8388351400000005e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ 
+ Node number [   38]:    38 
+ The Xj(1) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ 
+ Node number [    5]:     5 
+ The Xj(1) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(2) coordinate is [ 0.00000E+00]: -5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ 
+ Node number [   39]:    39 
+ The Xj(1) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(2) coordinate is [ 0.00000E+00]: -1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ 
+ Node number [   42]:    42 
+ The Xj(1) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ 
+ Node number [   34]:    34 
+ The Xj(1) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -8.8388351400000005e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ 
+ Node number [   14]:    14 
+ The Xj(1) coordinate is [ 0.00000E+00]: 1.2500000000000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: 1.0582347400000000e-08 
+ 
+ Node number [   44]:    44 
+ The Xj(1) coordinate is [ 0.00000E+00]: 1.2500000000000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: -1.4612140800000001e-08 
+ The Xj(3) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ 
+ Node number [   15]:    15 
+ The Xj(1) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ 
+ Node number [   45]:    45 
+ The Xj(1) coordinate is [ 0.00000E+00]: 1.0416666400000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: -2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ 
+ Node number [   48]:    48 
+ The Xj(1) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ 
+ Node number [   49]:    49 
+ The Xj(1) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -8.8388351400000005e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ 
+ Node number [   52]:    52 
+ The Xj(1) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ 
+ Node number [   40]:    40 
+ The Xj(1) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ 
+ Node number [   46]:    46 
+ The Xj(1) coordinate is [ 0.00000E+00]: 1.0416666400000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: 2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ 
+ Node number [   54]:    54 
+ The Xj(1) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ 
+ Node number [   47]:    47 
+ The Xj(1) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ 
+ Node number [   55]:    55 
+ The Xj(1) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 1.0416666400000000e+02 
+ 
+ Node number [   58]:    58 
+ The Xj(1) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: 1.2500000000000000e+02 
+ 
+ Node number [   50]:    50 
+ The Xj(1) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 1.0416666400000000e+02 
+ 
+ Node number [   59]:    59 
+ The Xj(1) coordinate is [ 0.00000E+00]: -1.0582347400000000e-08 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: 1.2500000000000000e+02 
+ 
+ Node number [   60]:    60 
+ The Xj(1) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -1.4612140800000001e-08 
+ The Xj(3) coordinate is [ 0.00000E+00]: 1.2500000000000000e+02 
+ 
+ Node number [   51]:    51 
+ The Xj(1) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(2) coordinate is [ 0.00000E+00]: -5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ 
+ Node number [   61]:    61 
+ The Xj(1) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 1.0416666400000000e+02 
+ 
+ Node number [   64]:    64 
+ The Xj(1) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ 
+ Node number [   65]:    65 
+ The Xj(1) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -8.8388351400000005e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ 
+ Node number [   67]:    67 
+ The Xj(1) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ 
+ Node number [   53]:    53 
+ The Xj(1) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(2) coordinate is [ 0.00000E+00]: -1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ 
+ Node number [   56]:    56 
+ The Xj(1) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 8.8388351400000005e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ 
+ Node number [   68]:    68 
+ The Xj(1) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ 
+ Node number [   57]:    57 
+ The Xj(1) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(2) coordinate is [ 0.00000E+00]: 5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ 
+ Node number [   69]:    69 
+ The Xj(1) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(2) coordinate is [ 0.00000E+00]: 1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ 
+ Node number [   70]:    70 
+ The Xj(1) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ 
+ Node number [   71]:    71 
+ The Xj(1) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 8.8388351400000005e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ 
+ Node number [   72]:    72 
+ The Xj(1) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ 
+ Node number [   62]:    62 
+ The Xj(1) coordinate is [ 0.00000E+00]: -6.2500000000000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 1.0416666400000000e+02 
+ 
+ Node number [   37]:    37 
+ The Xj(1) coordinate is [ 0.00000E+00]: -1.2500000000000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ 
+ Node number [   74]:    74 
+ The Xj(1) coordinate is [ 0.00000E+00]: -1.2500000000000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: 1.4612140800000001e-08 
+ The Xj(3) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ 
+ Node number [   25]:    25 
+ The Xj(1) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ 
+ Node number [   73]:    73 
+ The Xj(1) coordinate is [ 0.00000E+00]: -1.0416666400000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: 2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
+ 
+ Node number [   11]:    11 
+ The Xj(1) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ 
+ Node number [   28]:    28 
+ The Xj(1) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ 
+ Node number [   29]:    29 
+ The Xj(1) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(2) coordinate is [ 0.00000E+00]: 1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ 
+ Node number [   31]:    31 
+ The Xj(1) coordinate is [ 0.00000E+00]: 4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ 
+ Node number [   35]:    35 
+ The Xj(1) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -5.8925563799999999e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ 
+ Node number [   41]:    41 
+ The Xj(1) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(2) coordinate is [ 0.00000E+00]: -1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ 
+ Node number [   43]:    43 
+ The Xj(1) coordinate is [ 0.00000E+00]: -4.1666667900000000e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: -1.1785112800000000e+02 
+ The Xj(3) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ 
+ Node number [   63]:    63 
+ The Xj(1) coordinate is [ 0.00000E+00]: -8.3333335899999994e+01 
+ The Xj(2) coordinate is [ 0.00000E+00]: 0.0000000000000000e+00 
+ The Xj(3) coordinate is [ 0.00000E+00]: 8.3333335899999994e+01 
+ 
+ Node number [   66]:    66 
+ The Xj(1) coordinate is [ 0.00000E+00]: -1.0416666400000000e+02 
+ The Xj(2) coordinate is [ 0.00000E+00]: -2.9462781900000000e+01 
+ The Xj(3) coordinate is [ 0.00000E+00]: 6.2500000000000000e+01 
