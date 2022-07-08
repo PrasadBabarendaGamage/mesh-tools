@@ -1,6 +1,11 @@
 import os
 import numpy as np
 
+def export_datapoints_csv(data, filename):
+    # Shape of data should be a [num_datapoints,dim] numpy array.
+    field_id = filename + '.csv'
+    np.savetxt(field_id, data, delimiter=",")
+
 def export_datapoints_ipdata(data, label, filename):
     # Shape of data should be a [num_datapoints,dim] numpy array.
     field_id = open(filename + '.ipdata', 'w')
