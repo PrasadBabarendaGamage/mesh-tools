@@ -6,6 +6,7 @@ import numpy as np
 from opencmiss.zinc.context import Context
 from opencmiss.zinc.status import OK as ZINC_OK
 from scaffoldmaker.utils import zinc_utils
+from opencmiss.utils.zinc.finiteelement import get_element_node_identifiers
 
 def evaluate_zinc_mesh(input_mesh, dim, xi_loc, elements):
     """
@@ -148,7 +149,7 @@ class Zinc_mesh:
         for elem in elem_list:
             mesh_element = mesh_elements[elem]
             eft = mesh_element.getElementfieldtemplate(coordinates, -1)  # assumes all components same
-            nodeIdentifiers = zinc_utils.getElementNodeIdentifiers8Node(mesh_element, eft)
+            nodeIdentifiers = get_element_node_identifiers(mesh_element, eft)
             a=1
 
 
