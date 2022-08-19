@@ -173,10 +173,10 @@ def exfile_to_OpenCMISS(nodeFilename, elementFilename, coordinateField, basis,
     return mesh, coordinates, node_ids
 
 
-def morphic_to_OpenCMISS(morphicMesh, region, basis, meshUserNumber,
-                         dimension=2, interpolation='linear',
-                         create_start_callback=False, create_finish_callback=False,
-                         include_derivatives=True):
+def morphic_to_OpenCMISS(
+        morphicMesh, region, basis, meshUserNumber, interpolation='linear',
+        create_start_callback=False, create_finish_callback=False,
+        include_derivatives=True):
     """Convert an exnode and exelem files to a morphic mesh.
 
     Only Linear lagrange elements supported.
@@ -262,6 +262,7 @@ def OpenCMISS_to_morphic(
     Keyword arguments:
     morphicMesh -- morphic mesh
     dimension -- dimension of mesh to read in
+    element_nums -- global OpenCMISS element numbers.
     """
 
     from opencmiss.iron import iron
@@ -314,8 +315,10 @@ def OpenCMISS_to_morphic(
             num_elem_nodes = 8
 
     # Add elements
-    for elem in element_nums:
-        elem_nodes = mesh_elements.NodesGet(int(elem), num_elem_nodes)
+    for idx, elem in enumerate(element_nums):
+        global_element_number = idx + 1
+        elem_nodes = mesh_elements.NodesGet(
+            int(global_element_number), num_elem_nodes)
         mesh.add_element(elem, element_interpolation, elem_nodes)
         #print('Morphic element added', elem.number)
 
@@ -365,46 +368,67 @@ def txt_to_morphic(mesh_dir, node_file, element_file, nodes_subset=[],
 
     return mesh
 
-
-def morphic_to_meshio(morphic_mesh):
+def morphic_to_meshio(
+        morphic_mesh, triangulate=False, res=8, exterior_only=True):
     """Convert an morphic mesh to meshio format.
 
     Only Linear lagrange elements supported.
 
     Quad elements implemented, hex elements are a work in progress.
+
+    Keyword arguments:
+    morphic_mesh -- morphic mesh to convert.
+    triangulate -- create triangulation from morphic mesh prior to conversion.
+    res -- resolution to generate triangulation from. Only used when
+        triangulate=True.
+    exterior_only -- only triangulate exterior surface of mesh. Only used when
+        triangulate=True.
     """
 
     import meshio
 
-    points = morphic_mesh.get_nodes()
+    if triangulate:
+        # Generate triangulated surface mesh.
+        points, faces = morphic_mesh.get_faces(
+            res=res, exterior_only=exterior_only)
+        cells = []
+        for face in faces:
+            cells.append(("triangle", np.array([face])))
 
-    quad_element_nodes = []
-    hex_element_nodes = []
-    quad_element_numbers = []
-    hex_element_numbers = []
-    for element_idx, element in enumerate(morphic_mesh.elements):
-        if element.basis == ['L1', 'L1']:
-            reordering_idxs = scipy.array(
-                [1, 3, 2, 0])
-            reordered_element_nodes = np.array(element.node_ids)[reordering_idxs]
-            quad_element_nodes.append(reordered_element_nodes)
-            quad_element_numbers.append(element.id)
-        elif element.basis == ['L1', 'L1', 'L1']:
-            hex_element_nodes.append(element.node_ids)
-            hex_element_numbers.append(element.id)
+        meshio_mesh = meshio.Mesh(points, cells)
 
-    cells = [
-        ("quad", np.array(quad_element_nodes)-1),
-        #("hex", hex_element_nodes),
-    ]
+    else:
+        points = morphic_mesh.get_nodes()
 
-    meshio_mesh = meshio.Mesh(
-        points,
-        cells,
-        cell_data={"element_numbers": [np.array(quad_element_numbers)]},
-    )
+        quad_element_nodes = []
+        hex_element_nodes = []
+        quad_element_numbers = []
+        hex_element_numbers = []
+        for element_idx, element in enumerate(morphic_mesh.elements):
+            if element.basis == ['L1', 'L1']:
+                reordering_idxs = scipy.array(
+                    [1, 3, 2, 0])
+                reordered_element_nodes = np.array(
+                    element.node_ids)[reordering_idxs]
+                quad_element_nodes.append(reordered_element_nodes)
+                quad_element_numbers.append(element.id)
+            elif element.basis == ['L1', 'L1', 'L1']:
+                hex_element_nodes.append(element.node_ids)
+                hex_element_numbers.append(element.id)
+
+        cells = [
+            ("quad", np.array(quad_element_nodes)-1),
+            #("hex", hex_element_nodes),
+        ]
+
+        meshio_mesh = meshio.Mesh(
+            points,
+            cells,
+            cell_data={"element_numbers": [np.array(quad_element_numbers)]},
+        )
 
     return meshio_mesh
+
 
 def abaqus_to_morphic(mesh_dir, filename, nodes_subset=[], elem_subset=[],
                       debug=False):
