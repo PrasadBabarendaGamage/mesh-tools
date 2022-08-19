@@ -155,8 +155,40 @@ def visualise_mesh(
                         '{0}_Text'.format(label), mesh.get_nodes(nodes), nodes,
                         size=3)
 
-def renumber_mesh(mesh, node_offset=0, element_offset=0, label='',
-                  debug=False):
+
+def mesh_subset(mesh, element_nums):
+    """
+    Returns a subset of elements.
+
+    Keyword arguments:
+    mesh -- morphic mesh to renumber
+    element_nums -- node offset of the renumbered mesh
+    """
+
+    mesh_subset = morphic.Mesh()
+    element_nodes = []
+
+    for element_idx, element in enumerate(mesh.elements):
+        if element.id in element_nums:
+            element_nodes.append(element.node_ids)
+    element_nodes = np.unique(np.array(element_nodes).flatten())
+
+    for n_id in element_nodes:
+        mesh_subset.add_stdnode(
+            n_id, mesh.get_nodes(n_id, group=b'_default')[0], group='_default')
+
+    for element_idx, e_id in enumerate(element_nums):
+        element = mesh.elements[e_id]
+        mesh_subset.add_element(
+            element.id, element.basis, element.node_ids)
+
+    mesh_subset.generate(True)
+    mesh_subset.label = mesh.label
+
+    return mesh_subset
+
+def renumber_mesh(
+        mesh, node_offset=0, element_offset=0, label='', debug=False):
     """
     Renumbers a mesh sequentially
 
