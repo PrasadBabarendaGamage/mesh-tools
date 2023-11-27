@@ -1,6 +1,30 @@
 import h5py
 import numpy as np
 import json
+from scipy.spatial.distance import cdist
+
+def get_distributed_inds(points, threshold):
+    """
+    This function loads in the data points and distribute the data points more equally according to the coordinates of
+    the points. It returns a list with the indices of the nodes that need to be kept.
+
+    :param points: an mxn np.array of points with number m and dimension n.
+    :param threshold: the distance threshold between the points, in the same unit as the points.
+
+    Contributed by Robin Laven
+    """
+    dist_matrix = cdist(points, points)
+    available_mask = np.ones(points.shape[0], dtype=bool)
+    output_points = []
+    while np.any(available_mask):
+        point_id = np.argmax(available_mask)
+        available_mask[point_id] = False
+        output_points.append(point_id)
+
+        dists = np.where(dist_matrix[point_id,:] < threshold)
+        for d in dists:
+            available_mask[d] = False
+    return np.array(output_points).astype(int)
 
 def export_h5_dataset(export_fname, label, data):
 
