@@ -156,6 +156,30 @@ def visualise_mesh(
                         size=3)
 
 
+def mesh_element_centroids(mesh, element_nums='all'):
+    """
+    Returns the centroids of mesh elements.
+
+    These can be used as coordinates for plotting element numbers.
+    Centroids are calculated at the centre of each element.
+
+    Keyword arguments:
+    mesh -- morphic mesh
+    element_nums -- element numbers to calculate centroids for.
+    """
+
+    if element_nums == 'all':
+        element_nums = mesh.get_element_ids()
+
+    element_centroids = []
+
+    for element_idx, element in enumerate(mesh.elements):
+        if element_nums == 'all' or element.id in element_nums:
+            element_centroids.append(
+                element.evaluate([0.5]*len(element.basis)).tolist())
+
+    return element_nums, element_centroids
+
 def mesh_subset(mesh, element_nums):
     """
     Returns a subset of elements.
