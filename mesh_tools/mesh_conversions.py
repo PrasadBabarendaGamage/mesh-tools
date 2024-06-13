@@ -2,7 +2,12 @@ import os
 import numpy as np
 import scipy
 import mesh_tools
-import morphic
+import morphic 
+import vtk     
+import vtk.util.numpy_support as vnp 
+import scipy.spatial as spatial   
+
+# from node_ordering import node_ordering
 
 def exfile_to_morphic(nodeFilename, elementFilename, coordinateField,
                       dimension=2, interpolation='linear'):
@@ -763,3 +768,374 @@ def morphic_to_openfemlite(
                                   os.path.join(export_dir, export_name))
 
     return REGION
+
+
+def get_coordinates_and_elem_id_for_refinement(morphic_mesh):
+    # refine to linear
+
+    node_list = morphic_mesh.get_node_ids()[1]
+    if len(node_list) == 0:
+        node_list = morphic_mesh.get_node_ids(group='_default')[1]
+
+    interpolation = 'cubicLagrange'
+    include_derivatives = False
+    elements = []
+    for element_idx, element in enumerate(morphic_mesh.elements):
+        elements.append(np.array(element.node_ids, dtype='int32'))
+
+    # Add nodes
+    if interpolation == 'linear' or \
+            interpolation == 'quadraticLagrange' or \
+            interpolation == 'cubicLagrange':
+        derivatives = [1]
+    elif interpolation == 'hermite':
+        derivatives = range(1, 9)
+
+    if include_derivatives:
+        coordinates = np.zeros((len(node_list), 3, len(derivatives)))
+    else:
+        derivatives = [1]
+        coordinates = np.zeros((len(node_list), 3))
+    for node_idx, morphic_node in enumerate(morphic_mesh.nodes):
+        for component_idx in range(3):
+            for derivative_idx, derivative in enumerate(derivatives):
+                if include_derivatives:
+                    coordinates[node_idx, component_idx, derivative_idx] = \
+                        morphic_node.values[component_idx]
+                else:
+                    coordinates[node_idx, component_idx] = \
+                        morphic_node.values[component_idx]
+
+    return coordinates, elements
+
+def lagrange_vtk_to_morphic(filename, order=3, cell_type='hexahedron'):   
+    # read in the VTK file 
+    reader = vtk.vtkXMLUnstructuredGridReader() 
+    reader.SetFileName(filename) 
+    reader.Update() 
+    ugrid = reader.GetOutput() 
+
+    points = ugrid.GetPoints()  
+    points_data = vnp.vtk_to_numpy(points.GetData()) 
+
+    cells = ugrid.GetCells() 
+    cell_data = vnp.vtk_to_numpy(cells.GetData()) 
+
+    # Assuming each cell is defined by 'order+1' points for the given 'cell_type'
+    # Adjust the reshape parameters based on the actual structure of your cell data
+    num_points_per_cell = (order + 1) ** 3 if cell_type == 'hexahedron' else (order + 1) ** 2
+    cell_data = cell_data.reshape(-1, num_points_per_cell + 1)  # +1 if the first value is the cell size
+    cell_data = cell_data[:, 1:]  # Skip the first column if it represents the number of points per cell
+
+    points_reorder = node_ordering(cell_type, order) 
+
+    elem_orders = {1:['L1', 'L1', 'L1'], 2:['L2', 'L2', 'L2'], 3:['L3', 'L3', 'L3']} 
+
+    _, xn_unit = mesh_tools.generate_element_nodes(elem_orders[order], [1, 1, 1], [1.0, 1.0, 1.0]) 
+
+    tree = spatial.KDTree(xn_unit) 
+
+    mapping = {} 
+
+    for idx, node in enumerate(points_reorder): 
+        dist, ind = tree.query(node) 
+        mapping[idx] = ind 
+
+    reorder = [mapping[idx] for idx in range(len(mapping))]  # Ensure correct ordering
+
+    cell_data = cell_data[:, reorder] 
+
+    # add one to the cell data to match the morphic numbering 
+    cell_data = cell_data + 1
+
+    mesh = morphic.Mesh() 
+
+    for idx, elem in enumerate(cell_data): 
+        mesh.add_element(idx+1, elem_orders[order], elem) 
+
+    for idx, point in enumerate(points_data): 
+        mesh.add_stdnode(idx+1, point, group='_default') 
+
+    mesh.generate(True) 
+
+    return mesh
+
+def lagrange_morphic_to_vtk(morphic_mesh, filename, order, cell_type='hexahedron', field_data=None):  
+    """
+    Convert a morphic mesh to VTK format using Lagrange interpolation.
+
+    Args:
+        morphic_mesh (Mesh): The morphic mesh object to convert.
+        filename (str): The name of the output VTK file.
+        order (int): The order of the Lagrange interpolation.
+        cell_type (str, optional): The type of VTK cell to use. Defaults to 'hexahedron'.
+        field_data (dict, optional): Additional field data to add to the VTK file, e.g. displacement field. 
+                                    The keys are the field names and the values are the field data arrays. 
+                                    Defaults to None.
+
+    Returns:
+        None
+    """
+    morphic_mesh = mesh_tools.renumber_mesh(morphic_mesh)
+
+    xn, xe = get_coordinates_and_elem_id_for_refinement(morphic_mesh) 
+
+    xe = np.array(xe) - 1
+    xn = np.array(xn)
+
+    points_reorder = node_ordering(cell_type, order)    
+
+    elem_orders = {1:['L1', 'L1', 'L1'], 2:['L2', 'L2', 'L2'], 3:['L3', 'L3', 'L3']}
+
+    _, xn_unit = mesh_tools.generate_element_nodes(elem_orders[order], [1, 1, 1], [1.0, 1.0, 1.0])
+
+    tree = spatial.KDTree(xn_unit) 
+
+    mapping = {}
+
+    for idx, node in enumerate(points_reorder):  
+        dist, ind = tree.query(node)
+        mapping[ind] = idx
+
+    reorder = list(mapping.keys())
+
+    xe = xe[:, reorder]  
+
+    points = xn
+
+    points_vtk_data = vnp.numpy_to_vtk(points)
+    points_vtk = vtk.vtkPoints()
+    points_vtk.SetData(points_vtk_data)
+
+    cell_data = []
+    
+    for e in xe: 
+        cell_data.append(np.concatenate((np.array([len(e)]), np.array(e)), axis=0)) 
+
+    cell_data = np.array(cell_data)
+
+    id_type_np = vnp.ID_TYPE_CODE 
+    cell_data_vtk = vnp.numpy_to_vtk(cell_data, array_type=vtk.VTK_ID_TYPE) 
+    cells = vtk.vtkCellArray() 
+    cells.SetCells(len(cell_data), cell_data_vtk)
+
+    num_points = points.shape[0] 
+    pointdata = np.arange(num_points, dtype=np.float64) 
+    pointdata_vtk = vnp.numpy_to_vtk(pointdata)
+    pointdata_vtk.SetName("point_numbers")  
+
+
+    VTK_CELLTYPES = {'triangle': vtk.VTK_LAGRANGE_TRIANGLE, 
+                     'tetrahedron': vtk.VTK_LAGRANGE_TETRAHEDRON, 
+                     'quadrilateral': vtk.VTK_LAGRANGE_QUADRILATERAL, 
+                     'hexahedron': vtk.VTK_LAGRANGE_HEXAHEDRON, 
+                     'wedge': vtk.VTK_LAGRANGE_WEDGE}
+    ugrid = vtk.vtkUnstructuredGrid()
+    ugrid.SetPoints(points_vtk)
+    ugrid.SetCells(VTK_CELLTYPES[cell_type], cells)
+    pointdata_container = ugrid.GetPointData()
+    pointdata_container.SetScalars(pointdata_vtk)   
+
+    # Add field data  
+    if field_data: 
+        for key, value in field_data.items(): 
+            field = np.array(value)
+            field_vtk = vnp.numpy_to_vtk(field) 
+            field_vtk.SetName(key) 
+            pointdata_container.AddArray(field_vtk)
+
+    writer = vtk.vtkXMLUnstructuredGridWriter()
+    writer.SetInputDataObject(ugrid)
+    writer.SetDataModeToAscii()
+    writer.SetCompressorTypeToNone()
+    writer.SetFileName(filename)
+    writer.Write()
+
+"""Node numbering functions for a single, right-angled lagrange element at origin""" 
+# https://github.com/ju-kreber/paraview-scripts/blob/master/node_ordering.py 
+# https://www.kitware.com//modeling-arbitrary-order-lagrange-finite-elements-in-the-visualization-toolkit/
+
+import numpy as np
+
+def np_array(ordering):
+    """Wrapper for np.array to simplify common modifications"""
+    return np.array(ordering, dtype=np.float64)
+
+def n_verts_between(n, frm, to):
+    """Places `n` vertices on the edge between `frm` and `to`"""
+    if n <= 0:
+        return np.ndarray((0, 3)) # empty
+    edge_verts = np.stack((
+        np.linspace(frm[0], to[0], num=n+1, endpoint=False, axis=0),   # n+1 since start is included, remove later
+        np.linspace(frm[1], to[1], num=n+1, endpoint=False, axis=0),
+        np.linspace(frm[2], to[2], num=n+1, endpoint=False, axis=0),
+        ), axis=1)
+    return edge_verts[1:] # remove start point
+
+def sort_by_axes(coords):
+    coords = coords.round(12) # TODO required to some extent to get sorting right, better way to do this?
+    reordering = np.lexsort((coords[:,0], coords[:,1], coords[:,2]))
+    return coords[reordering, :]
+
+
+def number_triangle(corner_verts, order, skip=False):
+    """Outputs the list of coordinates of a right-angled triangle of arbitrary order in the right ordering"""
+    if order < 0:
+        return np.ndarray((0, 3)) # empty
+    if order == 0: # single point, for recursion
+        assert np.isclose(corner_verts[0], corner_verts[1]).all() and np.isclose(corner_verts[0], corner_verts[2]).all() # all corners must be same point
+        return np.array([corner_verts[0]])
+
+    # first: corner vertices
+    coords = np_array(corner_verts) if not skip else np.ndarray((0, 3)) # empty if skip
+    if order == 1:
+        return coords
+    # second: edges
+    num_verts_on_edge = order - 1
+    edges = [(0,1), (1,2), (2,0)]
+    for frm, to in edges:
+        coords = np.concatenate([coords, n_verts_between(num_verts_on_edge, corner_verts[frm], corner_verts[to])], axis=0) if not skip else coords # do nothing if skip
+    if order == 2:
+        return coords
+    # third: face, use recursion
+    e_x = (corner_verts[1] - corner_verts[0]) / order
+    e_y = (corner_verts[2] - corner_verts[0]) / order
+    inc = np.array([e_x + e_y, -2*e_x + e_y, e_x -2*e_y]) # adjust corner vertices for recursion
+    return np.concatenate([coords, number_triangle(np.array(corner_verts) + inc, order - 3, skip=False)], axis=0) # recursive call, decrease order
+
+
+def number_tetrahedron(corner_verts, order):
+    """Outputs the list of coordinates of a right-angled tetrahedron of arbitrary order in the right ordering"""
+    if order < 0:
+        return np.ndarray((0, 3)) # empty
+    if order == 0: # single point
+        assert np.isclose(corner_verts[1], corner_verts[0]).all() and np.isclose(corner_verts[2], corner_verts[0]).all() and np.isclose(corner_verts[3], corner_verts[0]).all() # all corners must be same point
+        return np.array([corner_verts[0]])
+
+    # first: corner vertices
+    coords = np_array(corner_verts)
+    if order == 1:
+        return coords
+    # second: edges
+    num_verts_on_edge = order - 1
+    edges = [(0,1), (1,2), (2,0), (0,3), (1,3), (2,3)]
+    for frm, to in edges:
+        coords = np.concatenate([coords, n_verts_between(num_verts_on_edge, corner_verts[frm], corner_verts[to])], axis=0)
+    if order == 2:
+        return coords
+    # third: faces, use triangle numbering method
+    faces = [(0,1,3), (2,3,1), (0,3,2), (0,2,1)]  # x-z, top, y-z, x-y (CCW)  TODO: not as in documentation, beware of future changes!!
+    for v_x, v_y, v_z in faces:
+        coords = np.concatenate([coords, number_triangle([corner_verts[v_x], corner_verts[v_y], corner_verts[v_z]], order, skip=True)], axis=0) # use number_triangle to number face, but skip corners and edges
+    if order == 3:
+        return coords
+    # fourth: volume, use recursion
+    e_x = (corner_verts[1] - corner_verts[0]) / order
+    e_y = (corner_verts[2] - corner_verts[0]) / order
+    e_z = (corner_verts[3] - corner_verts[0]) / order
+    inc = np.array([e_x + e_y + e_z, -3*e_x + e_y + e_z, e_x -3*e_y + e_z, e_x + e_y -3*e_z]) # adjust corner vertices for recursion
+    return np.concatenate([coords, number_tetrahedron(np.array(corner_verts) + inc, order - 4)], axis=0) # recursive call, decrease order
+
+
+def number_quadrilateral(corner_verts, order, skip=False):
+    """Outputs the list of coordinates of a right-angled quadrilateral of arbitrary order in the right ordering"""
+    # first: corner vertices
+    coords = np_array(corner_verts) if not skip else np.ndarray((0, 3)) # empty if skip
+    # second: edges
+    num_verts_on_edge = order -1
+    edges = [(0,1), (1,2), (3,2), (0,3)]
+    for frm, to in edges:
+        coords = np.concatenate([coords, n_verts_between(num_verts_on_edge, corner_verts[frm], corner_verts[to])], axis=0) if not skip else np.ndarray((0, 3)) # empty if skip
+    # third: face
+    e_x = (corner_verts[1] - corner_verts[0]) / order
+    e_y = (corner_verts[3] - corner_verts[0]) / order
+    pos_y = corner_verts[0].copy()
+    pos_y = np.expand_dims(pos_y, axis=0)
+    for _ in range(num_verts_on_edge):
+        pos_y += e_y
+        pos_yx = pos_y.copy()
+        for _ in range(num_verts_on_edge):
+            pos_yx += e_x
+            coords = np.concatenate([coords, pos_yx], axis=0)
+    return coords
+
+
+def number_hexahedron(corner_verts, order):
+    """Outputs the list of coordinates of a right-angled hexahedron of arbitrary order in the right ordering"""
+    # first: corner vertices
+    coords = np_array(corner_verts)
+    # second: edges
+    num_verts_on_edge = order - 1
+    edges = [(0,1), (1,2), (3,2), (0,3), (4,5), (5,6), (7,6), (4,7), (0,4), (1,5), (2,6), (3,7)]
+    for frm, to in edges:
+        coords = np.concatenate([coords, n_verts_between(num_verts_on_edge, corner_verts[frm], corner_verts[to])], axis=0)
+    # third: faces
+    faces = [(0,3,7,4), (1,2,6,5), (0,1,5,4), (3,2,6,7), (0,1,2,3), (4,5,6,7)]
+    for indices in faces:
+        sub_corner_verts = [corner_verts[q] for q in indices]
+        face_coords = number_quadrilateral(np_array(sub_corner_verts), order, skip=True) # use number_quadrilateral to number face, but skip cornes and edges
+        coords = np.concatenate([coords, face_coords], axis=0)
+    # fourth: interior
+    e_x = (corner_verts[1] - corner_verts[0]) / order
+    e_y = (corner_verts[3] - corner_verts[0]) / order
+    e_z = (corner_verts[4] - corner_verts[0]) / order
+    pos_z = corner_verts[0].copy()
+    pos_z = np.expand_dims(pos_z, axis=0)
+    for _ in range(num_verts_on_edge):
+        pos_z += e_z
+        pos_zy = pos_z.copy()
+        for _ in range(num_verts_on_edge):
+            pos_zy += e_y
+            pos_zyx = pos_zy.copy()
+            for _ in range(num_verts_on_edge):
+                pos_zyx += e_x
+                coords = np.concatenate([coords, pos_zyx], axis=0)
+    return coords
+
+
+def number_wedge(corner_verts, order): # currently only works up to 4th order, either very weird node numbering for triangular faces above or a bug in vtk
+    """Outputs the list of coordinates of a right-angled hexahedron of arbitrary order in the right ordering"""
+    # first: corner vertices
+    coords = np_array(corner_verts)
+    # second: edges
+    num_verts_on_edge = order - 1
+    edges = [(0,1), (1,2), (2,0), (3,4), (4,5), (5,3), (0,3), (1,4), (2,5)] 
+    for frm, to in edges:
+        coords = np.concatenate([coords, n_verts_between(num_verts_on_edge, corner_verts[frm], corner_verts[to])], axis=0)
+    # third: faces
+    triangular_faces = [(0,1,2), (3,4,5)]
+    quadrilateral_faces = [(0,1,4,3), (1,2,5,4), (0,2,5,3)]
+    for indices in triangular_faces:
+        face_coords = number_triangle(np_array([corner_verts[q] for q in indices]), order, skip=True)  # use number_triangle to number face, but skip corners and edges
+        face_coords = sort_by_axes(face_coords) # ! face points on triangles are not reported like normal triangles, but in axis order. Only on wedges !
+        coords = np.concatenate([coords, face_coords], axis=0)
+    for indices in quadrilateral_faces:
+        coords = np.concatenate([coords, number_quadrilateral(np_array([corner_verts[q] for q in indices]), order, skip=True)], axis=0) # use number_quadrilateral to number face, but skip corners and edges
+    # fourth: interior
+    e_z = (corner_verts[3] - corner_verts[0]) / order
+    pos_z = corner_verts[0].copy()
+    pos_z = np.expand_dims(pos_z, axis=0)
+    for _ in range(num_verts_on_edge):
+        pos_z += e_z
+        interior_triag_corner_verts = np_array([corner_verts[0], corner_verts[1], corner_verts[2]]) + pos_z
+        face_coords = number_triangle(interior_triag_corner_verts, order, skip=True) # use number_triangle to number face, but skip corners and edges
+        face_coords = sort_by_axes(face_coords) # ! face points on triangles are not reported like normal triangles, but in axis order. Only on wedges !
+        coords = np.concatenate([coords, face_coords], axis=0)
+    return coords
+
+
+def node_ordering(element_type, order):
+    order = int(order)
+    if order < 1 or order > 10:
+        raise ValueError("order must in interval [1, 10]")
+    if element_type == 'triangle':
+        return number_triangle(np_array([[0, 0, 0], [1, 0, 0], [0, 1, 0]]), order)
+    if element_type == 'tetrahedron':
+        return number_tetrahedron(np_array([[0,0,0], [1,0,0], [0,1,0], [0,0,1]]), order)
+    if element_type == 'quadrilateral':
+        return number_quadrilateral(np_array([[0,0,0], [1,0,0], [1,1,0], [0,1,0]]), order)
+    if element_type == 'hexahedron':
+        return number_hexahedron(np_array([[0,0,0], [1,0,0], [1,1,0], [0,1,0], [0,0,1], [1,0,1], [1,1,1], [0,1,1]]), order)
+    if element_type == 'wedge':
+        return number_wedge(np_array([[0,0,0], [1,0,0], [0,1,0], [0,0,1], [1,0,1], [0,1,1]]), order)
+    raise ValueError("Unknown element type '" + str(element_type) + "'")
